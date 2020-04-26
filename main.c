@@ -75,6 +75,7 @@ int main(){
 				volatile unsigned long i; 
 				for(i=0;i<1000000UL;i++);  
 			}
+			fprintf(stderr, "%s %d end\n", Process_name[i], pid);
 			exit(0);
 		}
 		else{	//main process
