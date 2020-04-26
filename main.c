@@ -9,6 +9,7 @@
 #include<sys/types.h>
 #include<sys/wait.h>
 #include"mysort.h"
+#include"timeunit.h"
 int main(){
 	int flag_for_policy = -1; // 0 for FIFO
 	char policy[5];
@@ -52,12 +53,10 @@ int main(){
 	sort(flag_for_policy, Process_name, R, T, N);
 	
 	pid_t pid;
-	int child_num = 0;
 	int main_clock = 0;
 	for(i = 0; i < N; i++){
 		while(main_clock != R[i]){
-			volatile unsigned long i; 
-			for(i=0;i<1000000UL;i++);  
+			wait_a_unit();
 			main_clock++;
 		}
 		fprintf(stderr, "fork %s\n", Process_name[i]);
@@ -73,8 +72,7 @@ int main(){
 			fprintf(stderr, "%s %d\n", Process_name[i], pid);
 			int round;
 			for(round = 0; round < R[i]; round++){
-				volatile unsigned long i; 
-				for(i=0;i<1000000UL;i++);  
+				wait_a_unit();
 			}
 			fprintf(stderr, "%s %d end\n", Process_name[i], pid);
 			exit(0);
