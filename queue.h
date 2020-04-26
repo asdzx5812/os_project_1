@@ -16,6 +16,8 @@ struct Node* newNode(int pid, int remain_time);
 
 struct Queue* createQueue();
 
+struct Node* extraQueue(struct Queue* q);
+
 void enQueue(struct Queue* q, int pid, int remain_time);
 
 void deQueue(struct Queue* q);

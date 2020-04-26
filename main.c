@@ -12,13 +12,14 @@
 #include"mysort.h"
 #include"timeunit.h"
 #include"queue.h"
-const int time_quantum = 500;
+
+#define TIME_QUANTUM 500;
 int main(){
 	int flag_for_policy = -1; // 0 for FIFO
 	char policy[5];
 	int N;
 	scanf("%s %d", policy, &N);
-
+	struct Queue* list = createQueue();
 	char** Process_name = (char**)malloc(sizeof(char*) * N);
 	int* R = (int*)malloc(sizeof(int) * N);
 	int* T = (int*)malloc(sizeof(int) * N);

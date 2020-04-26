@@ -26,6 +26,9 @@ void enQueue(struct Queue* q, int pid, int remain_time){
 	q->tail->next = tmp;
 	q->tail = tmp;
 }
+struct Node* extraQueue(struct Queue* q){
+	return q->head;
+}
 void deQueue(struct Queue* q){
 	if(q->head == NULL)
 		return;	
