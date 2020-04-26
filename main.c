@@ -38,7 +38,7 @@ int main(){
 	struct sched_param param, param1;
 	param.sched_priority = sched_get_priority_max(SCHED_FIFO);
 	param1.sched_priority = 0;
-	if(sched_setscheduler(0, 0, &param)){
+	if(sched_setscheduler(0, SCHED_FIFO, &param) == -1){
 		fprintf(stderr, "set scheduler error\n");
 		return -1;
 	}
