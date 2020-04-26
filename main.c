@@ -31,9 +31,53 @@ int main(){
 		fprintf(stderr,"set affinity error\n");
 		return -1;
 	}
+
+	struct sched_param param, param1;
+	param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	param1.sched_priority = 0;
+	if(sched_setscheduler(0, 0, &param)){
+		fprintf(stderr, "set scheduler error\n");
+		return -1;
+	}
+
 	if(strcmp("FIFO", policy) == 0){
 		flag_for_policy = 0;
 	}
+
 	sort(flag_for_policy, Process_name, R, T);
 	
+	pid_t pid;
+	int child_num = 0;
+	int main_clock = 0;
+	for(i = 0; i < N; i++){
+		while(main_clock != R[i]){
+			volatile unsigned long i; 
+			for(i=0;i<1000000UL;i++);  
+			main_clock++;
+		}
+		pid = fork();
+	
+		if(pid < 0){
+			fprint(stderr,"fork process %d failed\n", i);
+			return -1;
+		}
+		else if(pid == 0){ //for child
+			
+			pid = getpid();
+			fprintf(stderr, "%s %d\n", Process_name[i], pid);
+		
+			volatile unsigned long i; 
+			for(i=0;i<1000000UL;i++);  
+			
+			exit(0);
+		}
+		else{	//main process
+
+			if(sched_setaffinity(pid, sizeof(cpu_set_t), &mask)){
+				fprintf(stderr, "set process %d affinity to CPU 0 failed", i);
+				return -1;
+			}
+		}
+	}
+	while(wait(NULL) > 0);
 }
