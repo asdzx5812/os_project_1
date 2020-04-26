@@ -1,9 +1,12 @@
+#define _GNU_SOURCE
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
 #include<sched.h>
 #include<string.h>
 #include<sys/time.h>
+#include<sys/types.h>
+#include<sys/wait.h>
 #include"mysort.h"
 int main(){
 	int flag_for_policy = -1; // 0 for FIFO
@@ -44,7 +47,7 @@ int main(){
 		flag_for_policy = 0;
 	}
 
-	sort(flag_for_policy, Process_name, R, T);
+	sort(flag_for_policy, Process_name, R, T, N);
 	
 	pid_t pid;
 	int child_num = 0;
@@ -58,7 +61,7 @@ int main(){
 		pid = fork();
 	
 		if(pid < 0){
-			fprint(stderr,"fork process %d failed\n", i);
+			fprintf(stderr,"fork process %d failed\n", i);
 			return -1;
 		}
 		else if(pid == 0){ //for child
