@@ -51,7 +51,7 @@ int main(){
 		flag_for_policy = 0;
 	}
 
-	sort(flag_for_policy, Process_name, R, T, N);
+	sort(Process_name, R, T, N);
 	
 	pid_t pid;
 	int main_clock = 0;
@@ -74,21 +74,6 @@ int main(){
 			int round;
 			for(round = 0; round < T[i]; round++){
 				wait_a_unit();
-				
-				// for round robin
-				if((round % time_quantum) == (time_quantum - 1) && round != T[i] - 1){
-					if(sched_setscheduler(pid, SCHED_IDLE, &param1) == -1){
-						fprintf(stderr, "set scheduler error\n");
-						fprintf(stderr, "Message %s\n", strerror(errno));
-						return -1;
-					}
-					if(sched_setscheduler(pid, SCHED_FIFO, &param) == -1){
-						fprintf(stderr, "set scheduler error\n");
-						fprintf(stderr, "Message %s\n", strerror(errno));
-						return -1;
-					}
-					
-				}
 			}
 			fprintf(stderr, "%s %d end\n", Process_name[i], pid);
 			exit(0);
