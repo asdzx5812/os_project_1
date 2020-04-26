@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include<stdio.h>
+#include<errno.h>
 #include<stdlib.h>
 #include<unistd.h>
 #include<sched.h>
@@ -40,6 +41,7 @@ int main(){
 	param1.sched_priority = 0;
 	if(sched_setscheduler(0, SCHED_FIFO, &param) == -1){
 		fprintf(stderr, "set scheduler error\n");
+		fprintf(stderr, "Message %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -68,10 +70,11 @@ int main(){
 			
 			pid = getpid();
 			fprintf(stderr, "%s %d\n", Process_name[i], pid);
-		
-			volatile unsigned long i; 
-			for(i=0;i<1000000UL;i++);  
-			
+			int round;
+			for(round = 0; round < R[i]; round++){
+				volatile unsigned long i; 
+				for(i=0;i<1000000UL;i++);  
+			}
 			exit(0);
 		}
 		else{	//main process
