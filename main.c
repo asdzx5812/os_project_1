@@ -60,6 +60,7 @@ int main(){
 			for(i=0;i<1000000UL;i++);  
 			main_clock++;
 		}
+		fprintf(stderr, "fork %s\n", Process_name[i]);
 		pid = fork();
 	
 		if(pid < 0){
