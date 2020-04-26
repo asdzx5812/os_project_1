@@ -6,4 +6,4 @@ default :
 	gcc -Wall -std=gnu99 main.o mysort.o timeunit.o queue.o
 
 clean :
-	rm main.o mysort.o a.out
+	rm main.o mysort.o a.out timeunit.o queue.o
