@@ -8,8 +8,10 @@
 #include<sys/time.h>
 #include<sys/types.h>
 #include<sys/wait.h>
+#include<sys/resource.h>
 #include"mysort.h"
 #include"timeunit.h"
+#include"queue.h"
 const int time_quantum = 500;
 int main(){
 	int flag_for_policy = -1; // 0 for FIFO
@@ -38,8 +40,10 @@ int main(){
 		return -1;
 	}
 
-	struct sched_param param, param1;
+	struct sched_param param, param1, param2;
 	param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	fprintf(stderr, "priority:%d\n",param.sched_priority);	
+	param2.sched_priority = param.sched_priority - 1;
 	param1.sched_priority = 0;
 	if(sched_setscheduler(0, SCHED_FIFO, &param) == -1){
 		fprintf(stderr, "set scheduler error\n");
@@ -54,6 +58,7 @@ int main(){
 	sort(Process_name, R, T, N);
 	
 	pid_t pid;
+	pid_t first;
 	int main_clock = 0;
 	for(i = 0; i < N; i++){
 		while(main_clock != R[i]){
@@ -62,7 +67,7 @@ int main(){
 		}
 		fprintf(stderr, "fork %s\n", Process_name[i]);
 		pid = fork();
-	
+		
 		if(pid < 0){
 			fprintf(stderr,"fork process %d failed\n", i);
 			return -1;
@@ -79,7 +84,16 @@ int main(){
 			exit(0);
 		}
 		else{	//main process
+			if(i==0)
+				first = pid;
+			else if(i == 2){
+				if(sched_setparam(first, &param2) == -1)
+					fprintf(stderr, "set param error\n");
+				if(sched_setparam(first, &param) == -1)
+					fprintf(stderr, "set param error\n");
+			}
 
+		//	fprintf(stderr,"%s %d\n",Process_name[i],a);
 			if(sched_setaffinity(pid, sizeof(cpu_set_t), &mask)){
 				fprintf(stderr, "set process %d affinity to CPU 0 failed", i);
 				return -1;
