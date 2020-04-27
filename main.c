@@ -25,8 +25,8 @@ int main(){
 	//3 : PSJF
 	int flag_for_policy = -1; 
 	
-	//	a list for CPU ready queue
-	//	(the head in this queue is the current running process at CPU1)
+	//a list for CPU ready queue
+	//(the head in this queue is the current running process at CPU1)
 	struct Queue* list = createQueue();
 	
 	//read data
@@ -77,30 +77,30 @@ int main(){
 		flag_for_policy = 3;
 	else
 		fprintf(stderr,"Wrong poicy!\n");
-	//	shared variable end_flag between main and child 
-	//	is used to inform child to terminate
+	//shared variable end_flag between main and child 
+	//is used to inform child to terminate
 	int* end_flag;
 	const int shareSize = sizeof(int);
 	int segmentId = shmget(IPC_PRIVATE, shareSize, S_IRUSR | S_IWUSR);
 	end_flag = (int*)shmat(segmentId, NULL, 0);
 	
-	//	sort it, then we can arrive the process in order
+	//sort it, then we can arrive the process in order
 	sort(Process_name, R, T, N);
 	
-	//	pid is for fork()
-	//	num_process_done counts how many processes had been terminated
-	//	num_process_arrive counts how many processes had arrived
+	//pid is for fork()
+	//num_process_done counts how many processes had been terminated
+	//num_process_arrive counts how many processes had arrived
 	int num_process_done = 0, num_process_arrive = 0;
 	pid_t pid;
 
-	// main_clock is the clock of main process
-	// cure_process_clock is used to check RR quantum time
+	//main_clock is the clock of main process
+	//cure_process_clock is used to check RR quantum time
 	int main_clock = 0, cur_process_clock = 0; 
 	
-	// begin to schedule
+	//begin to schedule
 	while(num_process_done < N){
 
-		//	if there is a process arrive at this time, add it to the ready queue(list)
+		//if there is a process arrive at this time, add it to the ready queue(list)
 		while(num_process_arrive < N && main_clock == R[num_process_arrive]){
 			fprintf(stderr, "fork %s\n", Process_name[num_process_arrive]);
 			pid = fork();			
@@ -113,8 +113,8 @@ int main(){
 				pid = getpid();
 				fprintf(stderr, "%s %d\n", Process_name[num_process_arrive], pid);
 				
-				// infinite loop, when be informed that should be terminated
-				// then terminate it
+				//infinite loop, when be informed that should be terminated
+				//then terminate it
 				while(1){
 					if(*end_flag){ 
 						*end_flag = 0;
@@ -125,14 +125,14 @@ int main(){
 				exit(0);
 			}
 			else{	//main process
-				//	add it to ready queue(list)
+				//add it to ready queue(list)
 				enQueue(list,pid,T[num_process_arrive]);
-				//	set the child process bound to CPU 0
-				//	it means that the child be added to ready queue(CPU 0) 
-				//		-if there is no process running, the child begin to run
-				//  	-else wait in ready queue
-				//  before child bound to CPU 0, it is in ready queue(CPU 1),
-				//	so it will be blocked until it call this function
+				//set the child process bound to CPU 0
+				//it means that the child be added to ready queue(CPU 0) 
+				// -if there is no process running, the child begin to run
+				// -else wait in ready queue
+				//before child bound to CPU 0, it is in ready queue(CPU 1),
+				//so it will be blocked until it call this function
 				if(sched_setaffinity(pid, sizeof(cpu_set_t), &mask)){
 					fprintf(stderr, "set process %d affinity to CPU 0 failed", num_process_arrive);
 					return -1;
@@ -141,41 +141,41 @@ int main(){
 			}			
 		}
 
-		//	the reason why this block move above wait_a_unit() is 
-		//	in order to deal with RR (need add arrive process in ready queue
-		//	then switch process)
+		//the reason why this block move above wait_a_unit() is 
+		//in order to deal with RR (need add arrive process in ready queue
+		//then switch process)
 		if(main_clock != 0 && !Queue_is_empty(list)){
 			cur_process_clock++;
 			list->head->remain_time--;
-			// the running process should be terminate
+			//the running process should be terminate
 			if(list->head->remain_time == 0){ 
 				deQueue(list);
 				*end_flag = 1;
 				num_process_done++;
 				cur_process_clock = 0;
-				// synchronize with child process
-				// wait until the child process get the information(terminate information)
+				//synchronize with child process
+				//wait until the child process get the information(terminate information)
 				while(*end_flag == 1); 
-			} // RR timequantum check
+			} //RR timequantum check
 			else if(flag_for_policy == 1 && (cur_process_clock == TIME_QUANTUM)){
 				fprintf(stderr, "timeout switch process!!\n"); 
 				cur_process_clock = 0;
-				// change the priority of the running process
-				// these two instructions will cause the running process be
-				// added to the end of ready queue(CPU 1)
+				//change the priority of the running process
+				//these two instructions will cause the running process be
+				//added to the end of ready queue(CPU 1)
 				if(sched_setparam(list->head->pid, &param2) == -1)
 					fprintf(stderr, "set param error\n");
 				if(sched_setparam(list->head->pid, &param) == -1)
 					fprintf(stderr, "set param error\n");
-				// local ready queue update
+				//local ready queue update
 				mvHead(list);
 			}	
 		}
-		// a unit time
+		//a unit time
 		wait_a_unit();
 		main_clock++;
 	}
-	// wait all child process exit, avoid zombie processes
+	//wait all child process exit, avoid zombie processes
 	while(wait(NULL) > 0);
 	
 	return 0;
