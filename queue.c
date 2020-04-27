@@ -7,6 +7,7 @@ struct Node* newNode(int pid, int remain_time){
 	struct Node* tmp = (struct Node*)malloc(sizeof(struct Node));
 	tmp->pid = pid;
 	tmp->remain_time = remain_time;
+	tmp->next = NULL;
 	return tmp;
 }
 
@@ -54,26 +55,30 @@ bool Queue_is_empty(struct Queue* q){
 void findshortest(struct Queue* q){
 	struct Node* tmp = q->head;
 	struct Node* shortest = q->head;
-	
+//	fprintf(stderr, "findshort begin\n");	
 	while(tmp != NULL){
 		if(tmp->remain_time < shortest->remain_time){
 			shortest = tmp;
 		}
 		tmp = tmp->next;
 	}
+//	fprintf(stderr, "the shortest node has found\n");
 	if(shortest == q->head)
 		return;
 	else if(shortest == q->tail){
 		tmp = q->head;
+//		fprintf(stderr, "begin\n");
 		while(tmp != NULL){
 			if(tmp->next == shortest)
 				break;
 			tmp = tmp->next;
 		}	
+//		fprintf(stderr, "end\n");
 		shortest->next = q->head;
 		q->tail = tmp;
 		q->tail->next = NULL;
 		q->head = shortest;
+//		fprintf(stderr, "ssssssssss %d\n", q->head->pid);
 	}
 	else{
 		tmp = q->head;

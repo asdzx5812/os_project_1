@@ -102,7 +102,7 @@ int main(){
 	//main_clock is the clock of main process
 	//cure_process_clock is used to check RR quantum time
 	int main_clock = 0, cur_process_clock = 0; 
-
+	bool check = false;
 	//begin to schedule
 	while(num_process_done < N){
 
@@ -132,6 +132,8 @@ int main(){
 			}
 			else{	//main process
 				//add it to ready queue(list)
+				if(Queue_is_empty(list))
+					check = true;
 				enQueue(list,pid,T[num_process_arrive]);
 				//set the child process bound to CPU 0
 				//it means that the child be added to ready queue(CPU 0) 
@@ -143,7 +145,8 @@ int main(){
 					fprintf(stderr, "set process %d affinity to CPU 0 failed", num_process_arrive);
 					return -1;
 				}
-				if(num_process_arrive == 0){
+				if(check){
+					check = false;
 					if(sched_setparam(pid, &parammax) == -1){
 						fprintf(stderr, "set param error\n");
 						return -1;
@@ -171,8 +174,10 @@ int main(){
 				deQueue(list);
 				if(!Queue_is_empty(list)){
 					
+				//	fprintf(stderr,"%d\n", list->head->pid);
 					findshortest(list);
-					fprintf(stderr,"%d\n", list->head->pid);
+				//	fprintf(stderr,"%d\n", list->head->pid);
+					
 
 					if(sched_setparam(list->head->pid, &parammax) == -1)
 						fprintf(stderr, "set param error\n");
@@ -214,6 +219,7 @@ int main(){
 		//a unit time
 		wait_a_unit();
 		main_clock++;
+	//	fprintf(stderr, "mainclock:%d\n", main_clock);
 		if(!Queue_is_empty(list)){
 			cur_process_clock++;
 			list->head->remain_time--;
