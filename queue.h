@@ -16,10 +16,12 @@ struct Node* newNode(int pid, int remain_time);
 
 struct Queue* createQueue();
 
-struct Node* extraQueue(struct Queue* q);
 
 void enQueue(struct Queue* q, int pid, int remain_time);
 
 void deQueue(struct Queue* q);
 
+void mvHead(struct Queue* q);
+
+bool Queue_is_empty(struct Queue* q);
 #endif

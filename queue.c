@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
 #include"queue.h"
 
 struct Node* newNode(int pid, int remain_time){
@@ -26,9 +27,6 @@ void enQueue(struct Queue* q, int pid, int remain_time){
 	q->tail->next = tmp;
 	q->tail = tmp;
 }
-struct Node* extraQueue(struct Queue* q){
-	return q->head;
-}
 void deQueue(struct Queue* q){
 	if(q->head == NULL)
 		return;	
@@ -38,4 +36,18 @@ void deQueue(struct Queue* q){
 		q->tail = NULL;
 	
 	free(tmp);
+}
+void mvHead(struct Queue* q){
+	if(q->head->next == NULL)
+		return;
+	struct Node* tmp = q->head;
+	q->head = q->head->next;
+	q->tail->next = tmp;
+	q->tail = tmp;
+	tmp->next = NULL;
+}
+bool Queue_is_empty(struct Queue* q){
+	if(q->head == NULL)
+		return true;
+	return false;
 }
