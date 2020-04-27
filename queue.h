@@ -24,4 +24,7 @@ void deQueue(struct Queue* q);
 void mvHead(struct Queue* q);
 
 bool Queue_is_empty(struct Queue* q);
+
+void findshortest(struct Queue* q);
+
 #endif

@@ -54,9 +54,10 @@ int main(){
 		return -1;
 	}
 
-	//param is max priority, param2 is max-1 priority, param1 is zero priority
-	struct sched_param param, param1, param2;
-	param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	//param is max-1 priority, param2 is max-2 priority, param1 is zero priority
+	struct sched_param param, param1, param2, parammax;
+	parammax.sched_priority = sched_get_priority_max(SCHED_FIFO);
+	param.sched_priority = parammax.sched_priority - 1;
 	param2.sched_priority = param.sched_priority - 1;
 	param1.sched_priority = 0;
 	
@@ -86,7 +87,8 @@ int main(){
 	
 	//sort it, then we can arrive the process in order
 	sort(Process_name, R, T, N);
-	
+	if(flag_for_policy == 2 || flag_for_policy == 3)
+		sort_SJF(Process_name, R, T, N);
 	//pid is for fork()
 	//num_process_done counts how many processes had been terminated
 	//num_process_arrive counts how many processes had arrived
@@ -137,6 +139,10 @@ int main(){
 					fprintf(stderr, "set process %d affinity to CPU 0 failed", num_process_arrive);
 					return -1;
 				}
+				if(num_process_arrive == 0)
+					if(sched_setparam(pid, &parammax) == -1)
+						fprintf(stderr, "set param error\n");
+
 				num_process_arrive++;
 			}			
 		}
@@ -148,7 +154,7 @@ int main(){
 			cur_process_clock++;
 			list->head->remain_time--;
 			//the running process should be terminate
-			if(list->head->remain_time == 0){ 
+			if(list->head->remain_time == 0 && (flag_for_policy == 0 || flag_for_policy == 1)){ 
 				deQueue(list);
 				*end_flag = 1;
 				num_process_done++;
@@ -156,7 +162,20 @@ int main(){
 				//synchronize with child process
 				//wait until the child process get the information(terminate information)
 				while(*end_flag == 1); 
-			} //RR timequantum check
+			} 
+			else if(list->head->remain_time == 0 && flag_for_policy == 2){
+				deQueue(list);
+				if(!Queue_is_empty(list)){
+					findshortest(list);
+					if(sched_setparam(list->head->pid, &parammax) == -1)
+						fprintf(stderr, "set param error\n");
+				}
+				*end_flag = 1;
+				num_process_done++;
+				cur_process_clock = 0;
+				while(*end_flag == 1);
+			
+			}//RR timequantum check
 			else if(flag_for_policy == 1 && (cur_process_clock == TIME_QUANTUM)){
 				fprintf(stderr, "timeout switch process!!\n"); 
 				cur_process_clock = 0;

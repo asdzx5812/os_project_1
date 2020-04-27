@@ -22,3 +22,14 @@ void sort(char** process_name, int* R, int* T, int N){
 		}
 	}
 }
+void sort_SJF(char** process_name, int*R, int* T, int N){
+	int i, j;
+	for(i = 0; i < N; i++){
+		for(j = 0; j < N - i; j++){
+			if(R[j-1] == R[j] && T[j-1] > T[j]){
+				swap(i,j,process_name,R,T);
+			}
+		}
+	}
+
+}

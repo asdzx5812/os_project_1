@@ -51,3 +51,37 @@ bool Queue_is_empty(struct Queue* q){
 		return true;
 	return false;
 }
+void findshortest(struct Queue* q){
+	struct Node* tmp = q->head;
+	struct Node* shortest = q->head;
+	
+	while(tmp != NULL){
+		if(tmp->remain_time < shortest->remain_time){
+			shortest = tmp;
+		}
+		tmp = tmp->next;
+	}
+	if(shortest == q->head)
+		return;
+	else if(shortest == q->tail){
+		tmp = q->head;
+		while(tmp != NULL){
+			if(tmp->next == shortest)
+				break;
+		}	
+		shortest->next = q->head;
+		q->tail = tmp;
+		q->tail->next = NULL;
+		q->head = shortest;
+	}
+	else{
+		tmp = q->head;
+		while(tmp != NULL){
+			if(tmp->next == shortest)
+				break;
+		}	
+		tmp->next = shortest->next;
+		shortest->next = q->head;
+		q->head = shortest;
+	}
+}
