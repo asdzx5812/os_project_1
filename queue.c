@@ -68,6 +68,7 @@ void findshortest(struct Queue* q){
 		while(tmp != NULL){
 			if(tmp->next == shortest)
 				break;
+			tmp = tmp->next;
 		}	
 		shortest->next = q->head;
 		q->tail = tmp;
@@ -79,6 +80,7 @@ void findshortest(struct Queue* q){
 		while(tmp != NULL){
 			if(tmp->next == shortest)
 				break;
+			tmp = tmp->next;
 		}	
 		tmp->next = shortest->next;
 		shortest->next = q->head;

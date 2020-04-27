@@ -170,11 +170,14 @@ int main(){
 			else if(list->head->remain_time == 0){
 				deQueue(list);
 				if(!Queue_is_empty(list)){
+					
 					findshortest(list);
 					fprintf(stderr,"%d\n", list->head->pid);
+
 					if(sched_setparam(list->head->pid, &parammax) == -1)
 						fprintf(stderr, "set param error\n");
 				}
+
 				*end_flag = 1;
 				num_process_done++;
 				cur_process_clock = 0;
@@ -211,11 +214,9 @@ int main(){
 		//a unit time
 		wait_a_unit();
 		main_clock++;
-		fprintf(stderr, "mainclock : %d\n", main_clock);	
 		if(!Queue_is_empty(list)){
 			cur_process_clock++;
 			list->head->remain_time--;
-		fprintf(stderr, "pid  : %d remain : %d\n", list->head->pid, list->head->remain_time);	
 		}
 	}
 	//wait all child process exit, avoid zombie processes
