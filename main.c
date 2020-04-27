@@ -98,13 +98,6 @@ int main(){
 				}
 				else{	//main process
 					enQueue(list,pid,T[num_process_arrive]);	
-					/*
-						if(sched_setparam(first, &param2) == -1)
-							fprintf(stderr, "set param error\n");
-						if(sched_setparam(first, &param) == -1)
-							fprintf(stderr, "set param error\n");
-					*/
-				//	fprintf(stderr,"%s %d\n",Process_name[i],a);
 					if(sched_setaffinity(pid, sizeof(cpu_set_t), &mask)){
 						fprintf(stderr, "set process %d affinity to CPU 0 failed", num_process_arrive);
 						return -1;
@@ -112,6 +105,8 @@ int main(){
 					num_process_arrive++;
 				}			
 			}
+			//the reason why this block move above to wait_a_unit() is 
+			//in order to deal with RR (need add arrive process then check time quantum)
 			if(main_clock != 0 && !Queue_is_empty(list)){
 				cur_process_clock++;
 				list->head->remain_time--;
