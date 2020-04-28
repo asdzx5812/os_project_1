@@ -13,6 +13,7 @@
 #include<sys/shm.h>
 #include<sys/stat.h>
 #include<stdbool.h>
+#include<sys/syscall.h>
 #include"mysort.h"
 #include"timeunit.h"
 #include"queue.h"
@@ -54,12 +55,10 @@ int main(){
 		return -1;
 	}
 
-	//param is max-1 priority, param2 is max-2 priority, param1 is zero priority
-	struct sched_param param, param1, param2, parammax;
+	//param is max-1 priority
+	struct sched_param param, parammax;
 	parammax.sched_priority = sched_get_priority_max(SCHED_FIFO);
 	param.sched_priority = parammax.sched_priority - 1;
-	param2.sched_priority = param.sched_priority - 1;
-	param1.sched_priority = 0;
 	
 	//Set the scheduler of main process  is FIFO(child will inherit this property)
 	if(sched_setscheduler(0, SCHED_FIFO, &param) == -1){
@@ -90,9 +89,6 @@ int main(){
 	if(flag_for_policy == 2 || flag_for_policy == 3)
 		sort_SJF(Process_name, R, T, N);
 	
-	for(i = 0; i < N; i++){
-	fprintf(stderr, "%s %d %d\n", Process_name[i], R[i], T[i]);
-		}
 	//pid is for fork()
 	//num_process_done counts how many processes had been terminated
 	//num_process_arrive counts how many processes had arrived
@@ -108,16 +104,15 @@ int main(){
 
 		//if there is a process arrive at this time, add it to the ready queue(list)
 		while(num_process_arrive < N && main_clock == R[num_process_arrive]){
-			fprintf(stderr, "fork %s\n", Process_name[num_process_arrive]);
 			pid = fork();			
 			if(pid < 0){
 				fprintf(stderr,"fork process %d failed\n", num_process_arrive);
 				return -1;
 			}
 			else if(pid == 0){ //for child
-			
+				long starttime = syscall(335);
 				pid = getpid();
-				fprintf(stderr, "%s %d\n", Process_name[num_process_arrive], pid);
+				fprintf(stdout, "%s %d\n", Process_name[num_process_arrive], pid);
 				
 				//infinite loop, when be informed that should be terminated
 				//then terminate it
@@ -127,7 +122,8 @@ int main(){
 						break;
 					}
 				}
-				fprintf(stderr, "%s %d end\n", Process_name[num_process_arrive], pid);
+				long endtime = syscall(335);
+				syscall(334,pid,starttime,endtime);
 				exit(0);
 			}
 			else{	//main process
@@ -190,14 +186,16 @@ int main(){
 			
 			}//RR timequantum check
 			else if(flag_for_policy == 1 && (cur_process_clock == TIME_QUANTUM)){
-				fprintf(stderr, "timeout switch process!!\n"); 
 				cur_process_clock = 0;
+				//fprintf(stderr, "switch!!\n");
 				//change the priority of the running process
 				//these two instructions will cause the running process be
 				//added to the end of ready queue(CPU 1)
-				if(sched_setparam(list->head->pid, &param2) == -1)
+				int current_pid = list->head->pid;
+				mvHead(list);
+				if(sched_setparam(list->head->pid, &parammax) == -1)
 					fprintf(stderr, "set param error\n");
-				if(sched_setparam(list->head->pid, &param) == -1)
+				if(sched_setparam(current_pid, &param) == -1)
 					fprintf(stderr, "set param error\n");
 				//local ready queue update
 				mvHead(list);
@@ -219,7 +217,7 @@ int main(){
 		//a unit time
 		wait_a_unit();
 		main_clock++;
-	//	fprintf(stderr, "mainclock:%d\n", main_clock);
+//		fprintf(stderr, "mainclock:%d\n", main_clock);
 		if(!Queue_is_empty(list)){
 			cur_process_clock++;
 			list->head->remain_time--;
