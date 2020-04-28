@@ -1,5 +1,9 @@
 # os_project_1
 薛智文 OS project1 2020
+## Environment
+- linux ubuntu 16.04 LTS
+- kernel version：linux-4.14.25
+
 ### How to Compile
 
 ```
