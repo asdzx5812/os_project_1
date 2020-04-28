@@ -1,5 +1,5 @@
 # os_project_1
-薛智文 os project1                                                             b06705059 資工三
+薛智文 OS project1 2020
 ### How to Compile
 
 ```
