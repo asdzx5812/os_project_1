@@ -113,7 +113,7 @@ int main(){
 				long starttime = syscall(335);
 				pid = getpid();
 				fprintf(stdout, "%s %d\n", Process_name[num_process_arrive], pid);
-				
+				fflush(stdout);	
 				//infinite loop, when be informed that should be terminated
 				//then terminate it
 				while(1){
