@@ -159,6 +159,10 @@ int main(){
 			//the running process should be terminate
 			if(list->head->remain_time == 0 && (flag_for_policy == 0 || flag_for_policy == 1)){ 
 				deQueue(list);
+				if(!Queue_is_empty(list))
+					if(sched_setparam(list->head->pid, &parammax) == -1)
+						fprintf(stderr, "set param error\n");
+
 				*end_flag = 1;
 				num_process_done++;
 				cur_process_clock = 0;
@@ -197,8 +201,6 @@ int main(){
 					fprintf(stderr, "set param error\n");
 				if(sched_setparam(current_pid, &param) == -1)
 					fprintf(stderr, "set param error\n");
-				//local ready queue update
-				mvHead(list);
 			}
 			else if(flag_for_policy == 3){
 				if(!Queue_is_empty(list)){
