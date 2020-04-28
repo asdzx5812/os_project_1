@@ -1,6 +1,5 @@
 # os_project_1
-薛智文 os project1 
-b06705059 資工三
+薛智文 os project1                                                             b06705059 資工三
 ### How to Compile
 
 ```
